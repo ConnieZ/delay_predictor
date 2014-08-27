@@ -5,10 +5,13 @@ Repository with files for shiny app "delayPredictor": http://conniez.shinyapps.i
 
 Due to an error that was noticed today Aug 26th, around 8pm, I'm adding this README file with lines of code I had to fix.
 
+
+```
 In global.R
 
 #to get the current weather data for Newark Airport 
 #load a static dataset with data obtained from weatherData package
+
 weatherToday <- read.csv("data/weatherToday.csv")
 
 #because dplyr package was throwing an error as well, I changed to "plyr" package function ddply
@@ -31,3 +34,4 @@ delayData <- subset(daily_flights[,c(2,5,7,8)], daily_flights$carrier == chosenA
                        DepartureDelay = round(mean(dep_delay, na.rm = TRUE)),
                        ArrivalDelay = round(mean(arr_delay, na.rm = TRUE))
       )
+```
