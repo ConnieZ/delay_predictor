@@ -1,4 +1,8 @@
 #global.R
+# install.packages("nycflights13")
+# install.packages("dplyr")
+# install.packages("weatherData")
+# install.packages("tidyr")
 
 library(nycflights13)
 require(dplyr)
@@ -17,8 +21,9 @@ daily_weather <- weather %>% filter (origin == "EWR") %>%
 randomrows <- sample.int(nrow(daily_flights), 50000)
 #get the rows and save as a Test data set for the model
 daily_flights_test <- daily_flights[randomrows,]
-#get rid of unnesessary columns
-daily_flights_test <- daily_flights_test[,-c(4,6,7,9,10,12,13,14,15,16)]
+#leave only necessary columns
+daily_flights_test <- daily_flights_test[,c("year", "month", "day", "dep_time", "dep_delay", "arr_delay", "carrier",
+                                            "flight", "tailnum", "origin", "dest", "hour", "minute", "time_hour")]
 #combine the two data sets together
 merged <- merge(daily_flights_test, daily_weather)
 #add a column that will show whether there was a delay for that flight
@@ -37,6 +42,7 @@ merged_airlines$carrier<-as.character(merged_airlines$carrier)
 
 
 #to get the current weather data for Newark Airport 
+# unfortunately, you have to provide column numbers and not column names
 weatherToday <- weatherData::getSummarizedWeather("KEWR", Sys.Date(), opt_custom_columns=T,
                                      custom_columns = c(3,15,18,20))
 weatherToday<- weatherToday[,-1]

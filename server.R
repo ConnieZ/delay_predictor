@@ -62,7 +62,7 @@ shinyServer( function(input, output) {
   #chart displaying average departure and arrival delay 
   #for the specified airline grouped by month
   output$delayChart <- renderChart({
-    delayData <- daily_flights[,c(2,5,7,8)] %>% filter(carrier == chosenAirline()) %>% 
+    delayData <- daily_flights[,c("month", "carrier", "dep_delay", "arr_delay")] %>% filter(carrier == chosenAirline()) %>% 
       group_by(month) %>% summarise( 
                        DepartureDelay = round(mean(dep_delay, na.rm = TRUE)),
                        ArrivalDelay = round(mean(arr_delay, na.rm = TRUE))
