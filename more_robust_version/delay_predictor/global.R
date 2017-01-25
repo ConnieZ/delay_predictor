@@ -111,3 +111,18 @@ tree_pred <- predict(tree_model, daily_flights_test_tree, type="class")
 
 
 mean(tree_pred != daily_flights_test_tree$str_delay)
+
+
+# load the package
+# install.packages("RWeka")
+# install.packages("partykit")
+# http://blog.revolutionanalytics.com/2013/06/plotting-classification-and-regression-trees-with-plotrpart.html
+library(RWeka)
+library(partykit)
+
+# fit model
+fit <- J48(str_delay~., data=daily_flights_train_tree)
+# summarize the fit
+summary(fit)
+
+# plot(fit)
