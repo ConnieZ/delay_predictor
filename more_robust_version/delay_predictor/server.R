@@ -77,4 +77,15 @@ shinyServer( function(input, output) {
     return(delayPlot)
   })
   
+  
+  output$decisionTree1 <- renderPrint({
+    tree_model <- tree(str_delay~., daily_flights_train_tree)
+    summary(tree_model)
+  })
+  
+  output$decisionTree1graph <- renderPlot({
+    plot(tree_model)
+    text(tree_model, pretty=0)
+  })
+  
 })

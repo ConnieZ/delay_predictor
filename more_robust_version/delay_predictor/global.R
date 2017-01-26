@@ -77,7 +77,7 @@ daily_flights_train_tree$dest<- as.factor(daily_flights_train_tree$dest)
 daily_flights_train_tree$str_delay<- as.factor(daily_flights_train_tree$str_delay)
 
 
-# str(daily_flights_train_tree)
+str(daily_flights_train_tree)
 
 # because dest and tailnum vars have more than 32 levels we need to remove them
 
@@ -88,7 +88,7 @@ daily_flights_train_tree <- daily_flights_train_tree[,c("year", "month", "day", 
                                                         "flight", "origin", "hour", "minute", "temp",
                                                         "wind", "precip", "visib", "str_delay")]  
 
-tree_model <- tree(str_delay~., daily_flights_train_tree)
+
 # plot(tree_model)
 # text(tree_model, pretty=0)
 
@@ -111,18 +111,3 @@ tree_pred <- predict(tree_model, daily_flights_test_tree, type="class")
 
 
 mean(tree_pred != daily_flights_test_tree$str_delay)
-
-
-# load the package
-# install.packages("RWeka")
-# install.packages("partykit")
-# http://blog.revolutionanalytics.com/2013/06/plotting-classification-and-regression-trees-with-plotrpart.html
-library(RWeka)
-library(partykit)
-
-# fit model
-fit <- J48(str_delay~., data=daily_flights_train_tree)
-# summarize the fit
-summary(fit)
-
-# plot(fit)

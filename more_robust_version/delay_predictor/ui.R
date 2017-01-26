@@ -1,49 +1,82 @@
 #ui.R
+library(shinydashboard)
 library(shiny)
 library(rCharts)
+source("strings.R")
 
-shinyUI(fluidPage(
-  titlePanel("Flight Departure Delay Predictor for Newark Airport in NY"),
+dashboardPage(
+  dashboardHeader(title = "Delay Predictor"),
   
-  sidebarLayout(
-    sidebarPanel(
-      helpText("This app will calculate the likelihood of departure delay
-               for airlines departing Newark airport in NYC. The app runs
-               a Binary Logistic Regression model and uses it to predict
-               likelihood of delay."),
-      #input controls
-      selectInput("airline", label = strong("Choose an airline"), 
-                  choices = merged_airlines$name,
-                  selected = merged_airlines$name[1]),
-      numericInput("temp", label = strong("Specify the temperature (degrees Fahrenheit)"), 
-                   value = 75),
-      numericInput("precip", label = strong("Specify the precipitation (inches)"), 
-                   value = 0),
-      numericInput("wind", label = strong("Specify the wind speed (mph)"), 
-                   value = 5),
-      numericInput("visib", label = strong("Specify the visibility"), 
-                   value = 10),
-      h5("To help you with providing values for fields above, use this forecast for weather in Newark, NY today:"),
-      tableOutput("todaysForecast")
-      
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Logistic Regression", tabName = "LR", icon = icon("line-chart")),
+      menuItem("Decision Tree", tabName = "DT", icon = icon("cogs"))
     ),
-    
-    mainPanel(
-      h4("Instructions"),
-      helpText("The app runs initially with default data, 
-               however, once the user changes any of the input values on the left,
-               the app refreshes instantly and displays the newly provided values, 
-               as well as the likelihood of delay estimate 
-               and the refreshed chart with average departure and arrival delay 
-               for the chosen airline grouped by month."),
-      h4("The values you provided for prediction model:"),
-      tableOutput("predictionData"),
-      br(),
-      textOutput("predictionValue"),
-      br(),
-      div(class='wrapper',
-          tags$style(".highcharts{ height: 100%; width: 800px;}"),showOutput('delayChart', 'highcharts'))
+    hr()
+  ),
+  dashboardBody(
+      tabItems(
+        # First tab content
+        tabItem(tabName = "LR",
+                fluidRow(
+                  box(width = 12,
+                    h3(mainHeader),
+                    helpText(logRegDescription)
+                  )
+                ),
+                fluidRow(
+                  column(width = 3, 
+                     box(width = 12,
+                         # input controls
+                         selectInput("airline", label = strong("Choose an airline"), 
+                                     choices = merged_airlines$name,
+                                     selected = merged_airlines$name[1]),
+                         numericInput("temp", label = strong("Specify the temperature (degrees Fahrenheit)"), 
+                                      value = 75),
+                         numericInput("precip", label = strong("Specify the precipitation (inches)"), 
+                                      value = 0),
+                         numericInput("wind", label = strong("Specify the wind speed (mph)"), 
+                                      value = 5),
+                         numericInput("visib", label = strong("Specify the visibility"), 
+                                      value = 10),
+                         h5("To help you with providing values for fields above, use this forecast for weather in Newark, NY today:"),
+                         tableOutput("todaysForecast")
+                      )
+                  ),
+                  column(width = 9, 
+                      box(width = 12,
+                         h4("Instructions"),
+                         helpText(logRegInstructions),
+                         h4("The values you provided for prediction model:"),
+                         tableOutput("predictionData"),
+                         br(),
+                         textOutput("predictionValue"),
+                         br(),
+                         div(class='wrapper',
+                             showOutput('delayChart', 'highcharts'))
+                      )
+                  )
+                )     
+            
+            ),
+        
+            # Second tab content
+            tabItem(tabName = "DT",
+                    h2("Decision Tree Analysis"),
+                    fluidRow(
+                      column(width = 6, 
+                             box(width = 12,
+                                 helpText(basicDecTreeDescription),
+                                 textOutput("decisionTree1"),
+                                 plotOutput("decisionTree1graph")
+                             )
+                      )
+                      
+                    )  
+                    
+            )
+        
+
+        )
       )
-    
-  )
-))
+)
