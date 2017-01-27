@@ -55,12 +55,17 @@ merged_airlines$carrier<-as.character(merged_airlines$carrier)
 
 #to get the current weather data for Newark Airport 
 # unfortunately, you have to provide column numbers and not column names
-weatherToday <- weatherData::getSummarizedWeather("KEWR", Sys.Date(), opt_custom_columns=T,
-                                     custom_columns = c(3,15,18,20))
-weatherToday<- weatherToday[,-1]
-names(weatherToday) <- c("temp", "visib", "windspeed","precip" )
-weatherToday <- data.frame(Metrics = names(weatherToday), Values = c(weatherToday[1,1],
-                           weatherToday[1,2], weatherToday[1,3], weatherToday[1,4]) )
+if(is.na(weatherData::getSummarizedWeather("KEWR", Sys.Date())[1])){
+  weatherToday <- data.frame(Metrics = c("temp", "visib", "windspeed","precip" ),
+                             Values = c(75, 10, 0, 0))
+} else{
+  weatherToday <- weatherData::getSummarizedWeather("KEWR", Sys.Date(), opt_custom_columns=T,
+                                                    custom_columns = c(3,15,18,20))
+  weatherToday<- weatherToday[,-1]
+  names(weatherToday) <- c("temp", "visib", "windspeed","precip" )
+  weatherToday <- data.frame(Metrics = names(weatherToday), Values = c(weatherToday[1,1],
+                                                                       weatherToday[1,2], weatherToday[1,3], weatherToday[1,4]) )
+}
 
 
 
@@ -107,7 +112,3 @@ daily_flights_test_tree <- daily_flights_test_tree[,c("year", "month", "day", "d
                                                       "flight", "origin", "hour", "minute", "temp",
                                                       "wind", "precip", "visib", "str_delay")] 
 
-tree_pred <- predict(tree_model, daily_flights_test_tree, type="class")
-
-
-mean(tree_pred != daily_flights_test_tree$str_delay)

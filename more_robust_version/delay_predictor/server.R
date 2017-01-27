@@ -4,6 +4,9 @@ library(shiny)
 require(dplyr)
 require(tidyr)
 library(rCharts)
+library(tree)
+library(RWeka)
+library(partykit)
 
 #all the data is loaded in global.R file
 
@@ -12,6 +15,9 @@ shinyServer( function(input, output) {
   #create the binary logistic regression model
   glmfit <- glm(delay ~ carrier + visib + precip + wind + 
                   temp, data = merged, family = binomial)
+  
+  tree_model <- tree(str_delay~., daily_flights_train_tree)
+  C45fit <- J48(str_delay~., data=daily_flights_train_tree)
   
   chosenAirline <- reactive({
     as.character(subset(airlines$carrier, airlines$name == input$airline))
@@ -79,13 +85,34 @@ shinyServer( function(input, output) {
   
   
   output$decisionTree1 <- renderPrint({
-    tree_model <- tree(str_delay~., daily_flights_train_tree)
+    
     summary(tree_model)
   })
   
   output$decisionTree1graph <- renderPlot({
     plot(tree_model)
     text(tree_model, pretty=0)
+  })
+  
+  output$decisiontTree1Pred <- renderPrint({
+    tree_pred <- predict(tree_model, daily_flights_test_tree, type="class")
+    percent_error <-  mean(tree_pred != daily_flights_test_tree$str_delay)
+    paste0("Percent of error in prediciton: ", round(percent_error,3), "%.")
+  })
+  
+  output$decisionTree2 <- renderPrint({
+    summary(C45fit)
+  })
+  
+  # output$decisionTree2graph <- renderPlot({
+  #   plot(C45fit)
+  # })
+  
+  output$decisiontTree2Pred <- renderPrint({
+    C45predictions <- predict(C45fit, daily_flights_test_tree)
+    # summarize accuracy
+    percent_error <- mean(C45predictions != daily_flights_test_tree$str_delay)
+    paste0("Percent of error in prediciton: ", round(percent_error,3), "%.")
   })
   
 })

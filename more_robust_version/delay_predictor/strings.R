@@ -21,5 +21,12 @@ basicDecTreeDescription <- "I used the 'tree' R package to run a simple decision
               delay occurred, and no - for delay didn't occurr). Depending on seed of
               training dataset, the either or both critical factors were hour of departure 
               and visibility."
+exampleForecast <- "To help you with providing values for fields above, use this forecast 
+                  example:"
 
+C45DecTreeDescription <- "I used the 'Rweka' R package to run a C4.5 decision tree algorithm
+               using these variables: year, month, day, carrier,flight, origin, hour, 
+              minute, temp,wind, precip, visib, - to predict str_delay value (yes - for 
+              delay occurred, and no - for delay didn't occurr). This tree seems to have
+              so many branches, that plotting fails. This will need pruning."
 

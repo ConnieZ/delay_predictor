@@ -39,7 +39,7 @@ dashboardPage(
                                       value = 5),
                          numericInput("visib", label = strong("Specify the visibility"), 
                                       value = 10),
-                         h5("To help you with providing values for fields above, use this forecast for weather in Newark, NY today:"),
+                         h5(exampleForecast),
                          tableOutput("todaysForecast")
                       )
                   ),
@@ -68,7 +68,16 @@ dashboardPage(
                              box(width = 12,
                                  helpText(basicDecTreeDescription),
                                  textOutput("decisionTree1"),
-                                 plotOutput("decisionTree1graph")
+                                 plotOutput("decisionTree1graph"),
+                                 textOutput("decisiontTree1Pred")
+                             )
+                      ),
+                      column(width = 6, 
+                             box(width = 12,
+                                 helpText(C45DecTreeDescription),
+                                 textOutput("decisionTree2"),
+                                 #plotOutput("decisionTree2graph"),
+                                 textOutput("decisiontTree2Pred")
                              )
                       )
                       
