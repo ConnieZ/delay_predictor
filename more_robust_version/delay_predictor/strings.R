@@ -30,3 +30,10 @@ C45DecTreeDescription <- "I used the 'Rweka' R package to run a C4.5 decision tr
               delay occurred, and no - for delay didn't occurr). This tree seems to have
               so many branches, that plotting fails. This will need pruning."
 
+CPARTDecTreeDescription <- "I used the 'rpart' R package to run a CPART decision tree algorithm
+               using these variables: year, month, day, carrier,flight, origin, hour, 
+              minute, temp,wind, precip, visib, - to predict str_delay value (yes - for 
+              delay occurred, and no - for delay didn't occurr). This tools shows variable importance
+              and seems to have better exploration tools. Because of high cross validation error,
+              it will need to be pruned anyway."
+

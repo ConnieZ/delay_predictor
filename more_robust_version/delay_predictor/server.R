@@ -7,6 +7,8 @@ library(rCharts)
 library(tree)
 library(RWeka)
 library(partykit)
+library(rpart)
+
 
 #all the data is loaded in global.R file
 
@@ -18,6 +20,9 @@ shinyServer( function(input, output) {
   
   tree_model <- tree(str_delay~., daily_flights_train_tree)
   C45fit <- J48(str_delay~., data=daily_flights_train_tree)
+  CPARTfit <- rpart(str_delay ~ .,
+                    method="class", data=daily_flights_train_tree)
+  
   
   chosenAirline <- reactive({
     as.character(subset(airlines$carrier, airlines$name == input$airline))
@@ -114,5 +119,28 @@ shinyServer( function(input, output) {
     percent_error <- mean(C45predictions != daily_flights_test_tree$str_delay)
     paste0("Percent of error in prediciton: ", round(percent_error,3), "%.")
   })
+  
+  output$decisionTree3 <- renderPrint({
+    printcp(CPARTfit)
+  })
+  
+  output$decisionTree3graph <- renderPlot({
+    plot(CPARTfit, uniform=TRUE, margin = 0.08)
+    text(CPARTfit, use.n=TRUE, cex=.9)
+  })
+  
+  output$decisionTree3varimportance <- renderPlot({
+    summary <- summary(CPARTfit)
+    barplot(summary$variable.importance, main="Var Importance",cex.names=0.8)
+  })
+  
+  output$meanDelayByHour <- renderPlot({
+    delayData <- daily_flights[,c("hour", "dep_delay")]  %>% 
+      group_by(hour) %>% summarise( 
+        DepartureDelay = round(mean(dep_delay, na.rm = TRUE)))
+    barplot(delayData$DepartureDelay, main="Mean Delay by Hour",cex.names=0.8)
+  })
+  
+
   
 })
