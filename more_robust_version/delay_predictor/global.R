@@ -36,7 +36,7 @@ daily_flights <- mutate(daily_flights,
 
 # split data into testing and training 
 set.seed(3)
-train <- sample(1:nrow(daily_flights), nrow(daily_flights)/2)
+train <- sample(1:nrow(daily_flights), nrow(daily_flights)*0.65)
 test <- -train
 # randomrows <- sample.int(nrow(daily_flights), 50000)
 #get the rows and save as a train data set for the model
@@ -90,7 +90,7 @@ str(daily_flights_train_tree)
 # let's see if we remove it, what happens
 
 daily_flights_train_tree <- daily_flights_train_tree[,c("year", "month", "day", "carrier",
-                                                        "flight", "origin", "hour", "minute", "temp",
+                                                        "flight", "hour", "minute", "temp",
                                                         "wind", "precip", "visib", "str_delay")]  
 
 
@@ -109,6 +109,6 @@ daily_flights_test_tree$origin<- as.factor(daily_flights_test_tree$origin)
 daily_flights_test_tree$dest<- as.factor(daily_flights_test_tree$dest)
 daily_flights_test_tree$str_delay<- as.factor(daily_flights_test_tree$str_delay)
 daily_flights_test_tree <- daily_flights_test_tree[,c("year", "month", "day", "dep_time", "arr_delay", "carrier",
-                                                      "flight", "origin", "hour", "minute", "temp",
+                                                      "flight", "hour", "minute", "temp",
                                                       "wind", "precip", "visib", "str_delay")] 
 

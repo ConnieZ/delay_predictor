@@ -33,7 +33,14 @@ C45DecTreeDescription <- "I used the 'Rweka' R package to run a C4.5 decision tr
 CPARTDecTreeDescription <- "I used the 'rpart' R package to run a CPART decision tree algorithm
                using these variables: year, month, day, carrier,flight, origin, hour, 
               minute, temp,wind, precip, visib, - to predict str_delay value (yes - for 
-              delay occurred, and no - for delay didn't occurr). This tools shows variable importance
+              delay occurred, and no - for delay didn't occurr). This tool shows variable importance
+              and seems to have better exploration tools. Because of high cross validation error,
+              it will need to be pruned anyway."
+C50DecTreeDescription <- "I used the 'C50' R package to run a C5.0 decision tree algorithm,
+              which is a boosted version ofC4.5 algorithm, 
+              using these variables: year, month, day, carrier,flight, origin, hour, 
+              minute, temp,wind, precip, visib, - to predict str_delay value (yes - for 
+              delay occurred, and no - for delay didn't occurr). This tool shows variable importance
               and seems to have better exploration tools. Because of high cross validation error,
               it will need to be pruned anyway."
 

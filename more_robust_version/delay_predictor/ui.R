@@ -64,7 +64,7 @@ dashboardPage(
             tabItem(tabName = "DT",
                     h2("Decision Tree Analysis"),
                     fluidRow(
-                      column(width = 4, 
+                      column(width = 6, 
                              box(width = 12,
                                  helpText(basicDecTreeDescription),
                                  textOutput("decisionTree1"),
@@ -72,25 +72,40 @@ dashboardPage(
                                  textOutput("decisiontTree1Pred")
                              )
                       ),
-                      column(width = 8, 
-                             box(width = 6,
+                      column(width = 6, 
+                             box(width = 12,
                                  helpText(C45DecTreeDescription),
                                  textOutput("decisionTree2"),
                                  #plotOutput("decisionTree2graph"),
                                  textOutput("decisiontTree2Pred"),
                                  plotOutput("meanDelayByHour")
-                             ),
-                             box(width = 6,
-                                 helpText(CPARTDecTreeDescription),
-                                 textOutput("decisionTree3"),
-                                 plotOutput("decisionTree3varimportance"),
-                                 plotOutput("decisionTree3graph")
-                                 #,
-                                 #textOutput("decisiontTree2Pred")
                              )
                       )
                       
-                    )  
+                    ),
+                    fluidRow(
+                      column(width = 6, 
+                             box(width = 12,
+                                 helpText(CPARTDecTreeDescription),
+                                 textOutput("decisionTree3"),
+                                 textOutput("decisiontTree3Pred"),
+                                 plotOutput("decisionTree3varimportance"),
+                                 plotOutput("decisionTree3graph")
+                                 #,
+                                 #
+                             )
+                      ),
+                      column(width = 6, 
+                             box(width = 12,
+                                 helpText(C50DecTreeDescription),
+                                 textOutput("decisionTree4"),
+                                 textOutput("decisiontTree4Pred"),
+                                 plotOutput("decisionTree4graph"),
+                                 plotOutput("decisionTree4varimportance")
+                             )
+                      )
+                      
+                    )
                     
             )
         

@@ -8,7 +8,7 @@ library(tree)
 library(RWeka)
 library(partykit)
 library(rpart)
-
+library(C50)
 
 #all the data is loaded in global.R file
 
@@ -22,6 +22,7 @@ shinyServer( function(input, output) {
   C45fit <- J48(str_delay~., data=daily_flights_train_tree)
   CPARTfit <- rpart(str_delay ~ .,
                     method="class", data=daily_flights_train_tree)
+  C50fit <- C5.0(str_delay~., data=daily_flights_train_tree, trials=10)
   
   
   chosenAirline <- reactive({
@@ -133,6 +134,12 @@ shinyServer( function(input, output) {
     summary <- summary(CPARTfit)
     barplot(summary$variable.importance, main="Var Importance",cex.names=0.8)
   })
+  output$decisiontTree3Pred <- renderPrint({
+    CPARTpredictions <- predict(CPARTfit, daily_flights_test_tree, type = "class")
+    percent_error <- mean(CPARTpredictions != daily_flights_test_tree$str_delay)
+    paste0("Percent of error in prediciton: ", round(percent_error,3), "%.")
+    
+  })
   
   output$meanDelayByHour <- renderPlot({
     delayData <- daily_flights[,c("hour", "dep_delay")]  %>% 
@@ -141,6 +148,32 @@ shinyServer( function(input, output) {
     barplot(delayData$DepartureDelay, main="Mean Delay by Hour",cex.names=0.8)
   })
   
+  output$decisionTree4 <- renderPrint({
+    print(C50fit)
+  })
+  
+  output$decisionTree4graph <- renderPlot({
+    varImp <- as.data.frame(C5imp(C50fit))
+    varImp$var <- row.names(varImp)
+    
+    
+    C50fitpruned <- C5.0(str_delay~., data=daily_flights_train_tree[,c("str_delay",varImp$var[1:3])], control = C5.0Control(CF= 0.05), trials=10)
+    plot(C50fitpruned, main = "Decision Tree C5.0")
+    
+  })
+  
+  output$decisionTree4varimportance <- renderPlot({
+    varImp <- as.data.frame(C5imp(C50fit))
+    varImp$var <- row.names(varImp)
+    barplot(varImp$Overall,names.arg=varImp$var,  las=2)
+  })
+  
+  output$decisiontTree4Pred <- renderPrint({
+    C50predictions <- predict(C50fit, daily_flights_test_tree)
+    percent_error <- mean(C50predictions != daily_flights_test_tree$str_delay)
+    paste0("Percent of error in prediciton: ", round(percent_error,3), "%.")
+    
+  })
 
   
 })
