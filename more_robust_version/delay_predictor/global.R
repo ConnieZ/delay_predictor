@@ -3,6 +3,7 @@
 # install.packages("dplyr")
 # install.packages("weatherData")
 # install.packages("tidyr")
+# install.packages("neuralnet")
 
 library(nycflights13)
 require(dplyr)
@@ -72,17 +73,10 @@ if(is.na(weatherData::getSummarizedWeather("KEWR", Sys.Date())[1])){
 # install.packages("tree")
 library(tree)
 
-# merged is the dataset we use
 # delay var is the one we will be predicting
 daily_flights_train_tree <- daily_flights_train
 daily_flights_train_tree$carrier<- as.factor(daily_flights_train_tree$carrier)
-daily_flights_train_tree$tailnum<- as.factor(daily_flights_train_tree$tailnum)
-daily_flights_train_tree$origin<- as.factor(daily_flights_train_tree$origin)
-daily_flights_train_tree$dest<- as.factor(daily_flights_train_tree$dest)
 daily_flights_train_tree$str_delay<- as.factor(daily_flights_train_tree$str_delay)
-
-
-str(daily_flights_train_tree)
 
 # because dest and tailnum vars have more than 32 levels we need to remove them
 
@@ -92,6 +86,19 @@ str(daily_flights_train_tree)
 daily_flights_train_tree <- daily_flights_train_tree[,c("year", "month", "day", "carrier",
                                                         "flight", "hour", "minute", "temp",
                                                         "wind", "precip", "visib", "str_delay")]  
+# Datasets for Artificial Neural Networks 
+daily_flights_ann <- daily_flights
+carrier_map <- data.frame(carrier = sort(unique(daily_flights$carrier)), 
+                         carrier_int = seq_along(sort(unique(daily_flights$carrier))))
+daily_flights_ann <- merge(daily_flights_ann, carrier_map, by="carrier", all.x=TRUE)
+daily_flights_ann <- daily_flights_ann[,c("year", "month", "day", "carrier_int",
+      "flight", "hour", "minute", "temp",
+      "wind", "precip", "visib", "delay")]
+
+train_ann <- sample(1:nrow(daily_flights), nrow(daily_flights)*0.20)
+test_ann <- -train_ann
+daily_flights_train_ann <- daily_flights_ann[train_ann,]
+daily_flights_test_ann <- daily_flights_ann[test_ann,]
 
 
 # plot(tree_model)
@@ -104,9 +111,6 @@ daily_flights_train_tree <- daily_flights_train_tree[,c("year", "month", "day", 
 
 daily_flights_test_tree <- daily_flights_test
 daily_flights_test_tree$carrier<- as.factor(daily_flights_test_tree$carrier)
-daily_flights_test_tree$tailnum<- as.factor(daily_flights_test_tree$tailnum)
-daily_flights_test_tree$origin<- as.factor(daily_flights_test_tree$origin)
-daily_flights_test_tree$dest<- as.factor(daily_flights_test_tree$dest)
 daily_flights_test_tree$str_delay<- as.factor(daily_flights_test_tree$str_delay)
 daily_flights_test_tree <- daily_flights_test_tree[,c("year", "month", "day", "dep_time", "arr_delay", "carrier",
                                                       "flight", "hour", "minute", "temp",

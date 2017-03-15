@@ -10,7 +10,9 @@ dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Logistic Regression", tabName = "LR", icon = icon("line-chart")),
-      menuItem("Decision Tree", tabName = "DT", icon = icon("cogs"))
+      menuItem("Decision Tree", tabName = "DT", icon = icon("cogs")),
+      menuItem("Neural Networks", tabName = "ANN", icon = icon("cogs"))
+      
     ),
     hr()
   ),
@@ -107,7 +109,24 @@ dashboardPage(
                       
                     )
                     
-            )
+            ),
+        # Third tab content
+        tabItem(tabName = "ANN",
+                h2("Artificial Neural Networks"),
+                fluidRow(
+                  column(width = 6, 
+                         box(width = 12,
+
+                             plotOutput("ANNgraph")
+
+                         )
+                  )
+                  
+                )
+                  
+                
+                
+        )
         
 
         )

@@ -9,20 +9,26 @@ library(RWeka)
 library(partykit)
 library(rpart)
 library(C50)
+library(neuralnet)
 
 #all the data is loaded in global.R file
 
 
 shinyServer( function(input, output) {
   #create the binary logistic regression model
-  glmfit <- glm(delay ~ carrier + visib + precip + wind + 
-                  temp, data = merged, family = binomial)
+  glmfit <- reactive({glm(delay ~ carrier + visib + precip + wind + 
+                  temp, data = merged, family = binomial)})
   
-  tree_model <- tree(str_delay~., daily_flights_train_tree)
-  C45fit <- J48(str_delay~., data=daily_flights_train_tree)
-  CPARTfit <- rpart(str_delay ~ .,
-                    method="class", data=daily_flights_train_tree)
-  C50fit <- C5.0(str_delay~., data=daily_flights_train_tree, trials=10)
+  tree_model <- reactive({tree(str_delay~., daily_flights_train_tree)})
+  C45fit <- reactive({J48(str_delay~., data=daily_flights_train_tree)})
+  CPARTfit <- reactive({rpart(str_delay ~ .,
+                    method="class", data=daily_flights_train_tree)})
+  C50fit <- reactive({C5.0(str_delay~., data=daily_flights_train_tree, trials=10)})
+  
+  
+  neuralModel <- reactive({neuralnet(delay~year+month+day+carrier_int+flight+hour+minute+temp+wind+precip+visib, 
+                           data=daily_flights_train_ann, 
+                           hidden=1, err.fct="ce", linear.output=FALSE)})
   
   
   chosenAirline <- reactive({
@@ -41,7 +47,7 @@ shinyServer( function(input, output) {
   
   #function that creates the prediction result based on the glm model
   predictionR<-reactive({
-    prediction <- predict.glm(glmfit, newdata = data.frame(carrier = chosenAirline(),
+    prediction <- predict.glm(glmfit(), newdata = data.frame(carrier = chosenAirline(),
                                                            temp = input$temp, precip = input$precip, 
                                                            wind =input$wind, visib = input$visib),
                           type="response", se.fit=TRUE)
@@ -50,7 +56,7 @@ shinyServer( function(input, output) {
   
   confintervalR <- reactive({
     #in order to get a confidence interval for the estimate of probability of delay 
-    l.hat = predict.glm(glmfit, newdata = data.frame(carrier = chosenAirline(),
+    l.hat = predict.glm(glmfit(), newdata = data.frame(carrier = chosenAirline(),
                                                      temp = input$temp, precip = input$precip, 
                                                      wind =input$wind, visib = input$visib), se.fit=TRUE)
     ci = c(l.hat$fit - 1.96*l.hat$se.fit, l.hat$fit + 1.96*l.hat$se.fit)
@@ -92,22 +98,22 @@ shinyServer( function(input, output) {
   
   output$decisionTree1 <- renderPrint({
     
-    summary(tree_model)
+    summary(tree_model())
   })
   
   output$decisionTree1graph <- renderPlot({
-    plot(tree_model)
-    text(tree_model, pretty=0)
+    plot(tree_model())
+    text(tree_model(), pretty=0)
   })
   
   output$decisiontTree1Pred <- renderPrint({
-    tree_pred <- predict(tree_model, daily_flights_test_tree, type="class")
+    tree_pred <- predict(tree_model(), daily_flights_test_tree, type="class")
     percent_error <-  mean(tree_pred != daily_flights_test_tree$str_delay)
     paste0("Percent of error in prediciton: ", round(percent_error,3), "%.")
   })
   
   output$decisionTree2 <- renderPrint({
-    summary(C45fit)
+    summary(C45fit())
   })
   
   # output$decisionTree2graph <- renderPlot({
@@ -115,27 +121,27 @@ shinyServer( function(input, output) {
   # })
   
   output$decisiontTree2Pred <- renderPrint({
-    C45predictions <- predict(C45fit, daily_flights_test_tree)
+    C45predictions <- predict(C45fit(), daily_flights_test_tree)
     # summarize accuracy
     percent_error <- mean(C45predictions != daily_flights_test_tree$str_delay)
     paste0("Percent of error in prediciton: ", round(percent_error,3), "%.")
   })
   
   output$decisionTree3 <- renderPrint({
-    printcp(CPARTfit)
+    printcp(CPARTfit())
   })
   
   output$decisionTree3graph <- renderPlot({
-    plot(CPARTfit, uniform=TRUE, margin = 0.08)
-    text(CPARTfit, use.n=TRUE, cex=.9)
+    plot(CPARTfit(), uniform=TRUE, margin = 0.08)
+    text(CPARTfit(), use.n=TRUE, cex=.9)
   })
   
   output$decisionTree3varimportance <- renderPlot({
-    summary <- summary(CPARTfit)
+    summary <- summary(CPARTfit())
     barplot(summary$variable.importance, main="Var Importance",cex.names=0.8)
   })
   output$decisiontTree3Pred <- renderPrint({
-    CPARTpredictions <- predict(CPARTfit, daily_flights_test_tree, type = "class")
+    CPARTpredictions <- predict(CPARTfit(), daily_flights_test_tree, type = "class")
     percent_error <- mean(CPARTpredictions != daily_flights_test_tree$str_delay)
     paste0("Percent of error in prediciton: ", round(percent_error,3), "%.")
     
@@ -149,11 +155,11 @@ shinyServer( function(input, output) {
   })
   
   output$decisionTree4 <- renderPrint({
-    print(C50fit)
+    print(C50fit())
   })
   
   output$decisionTree4graph <- renderPlot({
-    varImp <- as.data.frame(C5imp(C50fit))
+    varImp <- as.data.frame(C5imp(C50fit()))
     varImp$var <- row.names(varImp)
     
     
@@ -163,16 +169,29 @@ shinyServer( function(input, output) {
   })
   
   output$decisionTree4varimportance <- renderPlot({
-    varImp <- as.data.frame(C5imp(C50fit))
+    varImp <- as.data.frame(C5imp(C50fit()))
     varImp$var <- row.names(varImp)
     barplot(varImp$Overall,names.arg=varImp$var,  las=2)
   })
   
   output$decisiontTree4Pred <- renderPrint({
-    C50predictions <- predict(C50fit, daily_flights_test_tree)
+    C50predictions <- predict(C50fit(), daily_flights_test_tree)
     percent_error <- mean(C50predictions != daily_flights_test_tree$str_delay)
     paste0("Percent of error in prediciton: ", round(percent_error,3), "%.")
     
+  })
+  
+  output$ANNgraph <- renderPlot({
+    
+    plot(neuralModel())
+    
+  })
+  
+  output$ANNPred <- renderPrint({
+    ANNpredictions <- compute(neuralModel, daily_flights_test_ann[,c("year", "month", "day", "carrier_int",
+                                                                     "flight", "hour", "minute", "temp",
+                                                                     "wind", "precip", "visib")])
+
   })
 
   
